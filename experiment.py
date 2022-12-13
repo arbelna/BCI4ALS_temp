@@ -147,4 +147,3 @@ class Experiment:
             error("You should enter a number!")
 
 
-
