@@ -28,4 +28,6 @@ def segmentation(eeg_data, marker_ind, chan_num, fs, bf_ml, af_ml, ep_ml):
 
     for seg in range(0, len(marker_ind)):
         segmented_data[seg] = eeg_data[:, marker_ind[seg] - before_ep_ind:marker_ind[seg] + after_ep_ind + ep_ind_len]
+        for chan in range(0, chan_num):
+            segmented_data[seg, chan] = segmented_data[seg, chan] - np.mean(segmented_data[seg, chan, 0:before_ep_ind])
     return segmented_data
