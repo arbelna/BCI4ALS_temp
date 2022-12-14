@@ -6,6 +6,7 @@ from tkinter import messagebox
 from tkinter.filedialog import askdirectory
 from tkinter import Tk, Entry, Label, Button, ttk
 from random import randrange
+from psychopy import visual, core
 
 import brainflow
 import numpy as np
@@ -26,7 +27,7 @@ class Experiment:
         self.cue_length = None
         self.trial_length = None
         self.session_directory = None
-        self.enum_image = {0: 'right', 1: 'left', 2: 'idle'}
+        self.enum_image = {0: 'yes', 1: 'no', 2: 'none'}
         self.experiment_type = None
         self.skip_after = None
 
@@ -146,4 +147,23 @@ class Experiment:
             err = Tk()
             error("You should enter a number!")
 
+
+
+    def run_experiment(self):
+        for i in range(self.num_blocks):
+            core.wait(1.0)
+            mywin = visual.Window([800, 600], monitor="testMonitor", units="deg")
+            yes = visual.TextStim(mywin, f'Block number {i+1}', color=(1, 1, 1), colorSpace='rgb')
+            yes.draw()
+            mywin.update()
+            core.wait(1.0)
+            mywin.close()
+            mywin = visual.Window([800, 600], monitor="testMonitor", units="deg")
+            for j in range(self.num_trials):
+                core.wait(3.0)
+                yes = visual.ImageStim(win=mywin, image=f'Pictures/{self.enum_image[self.labels[i][j]]}.jpg')
+                yes.draw()
+                mywin.update()
+                core.wait(3.0)
+            mywin.close()
 
