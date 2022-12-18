@@ -1,12 +1,14 @@
 import os
-import random
+
 import sys
 from datetime import datetime
 from tkinter import messagebox
 from tkinter.filedialog import askdirectory
-from tkinter import Tk, Entry, Label, Button, ttk
+from tkinter import Tk, Entry, Label, Button
 from random import randrange
-from psychopy import visual, core
+from psychopy import visual, core, logging
+import random
+import pandas as pd
 
 import brainflow
 import numpy as np
@@ -14,9 +16,11 @@ import numpy as np
 
 class Experiment:
     def __init__(self, eeg):
+
         self.ask_num_blocks()
         self.ask_num_trials()
         self.eeg = eeg
+        self.results = []
 
         # if self.eeg.board_id == brainflow.BoardIds.SYNTHETIC_BOARD:
         #     messagebox.showwarning(title="bci4als WARNING", message="You are running a synthetic board!")
@@ -24,6 +28,8 @@ class Experiment:
         # else:
         #     self.debug = False
 
+        self.num_blocks = None
+        self.num_trials = None
         self.cue_length = None
         self.trial_length = None
         self.session_directory = None
@@ -74,9 +80,9 @@ class Experiment:
     def ask_num_trials(self):
         # Define a function to return the Input data
         def get_num_trials():
-            input = entry.get()
+            input1 = entry.get()
             try:
-                self.num_trials = int(input)
+                self.num_trials = int(input1)
             except:
                 self.num_trials = None
             win.destroy()
@@ -112,9 +118,9 @@ class Experiment:
     def ask_num_blocks(self):
         # Define a function to return the Input data
         def get_num_block():
-            input = entry.get()
+            input1 = entry.get()
             try:
-                self.num_blocks = int(input)
+                self.num_blocks = int(input1)
             except:
                 self.num_blocks = None
             win.destroy()
@@ -147,23 +153,43 @@ class Experiment:
             err = Tk()
             error("You should enter a number!")
 
-
-
     def run_experiment(self):
+
+        # overwrite (filemode='w') a detailed log of the last run in this dir
+        lastLog = logging.LogFile("lastRun.log", level=logging.CRITICAL, filemode='w')
+
         for i in range(self.num_blocks):
-            core.wait(1.0)
             mywin = visual.Window([800, 600], monitor="testMonitor", units="deg")
-            yes = visual.TextStim(mywin, f'Block number {i+1}', color=(1, 1, 1), colorSpace='rgb')
+            yes = visual.TextStim(mywin, f'Block number {i + 1}', color=(1, 1, 1), colorSpace='rgb')
             yes.draw()
-            mywin.update()
-            core.wait(1.0)
+            mywin.logOnFlip(level=logging.CRITICAL, msg=f'+{i + 1}')
+            mywin.flip(clearBuffer=True)
+            core.wait(3.0)
             mywin.close()
             mywin = visual.Window([800, 600], monitor="testMonitor", units="deg")
             for j in range(self.num_trials):
-                core.wait(3.0)
+                wait = random.uniform(0.45, 0.55)
+                core.wait(wait)
                 yes = visual.ImageStim(win=mywin, image=f'Pictures/{self.enum_image[self.labels[i][j]]}.jpg')
                 yes.draw()
-                mywin.update()
-                core.wait(3.0)
+                mywin.logOnFlip(level=logging.CRITICAL, msg=self.labels[i][j])
+                mywin.flip(clearBuffer=True)
+                core.wait(0.2)
+                yes = visual.ImageStim(win=mywin)
+                yes.draw()
+                mywin.flip()
+                wait = 1 - 0.2 - wait
+                core.wait(wait)
             mywin.close()
 
+        with open('lastRun.log') as file:
+            file = [line.rstrip('\n').split('\t') for line in file]
+        pre_dataframe = []
+        for i in range(self.num_blocks * self.num_trials + self.num_blocks):
+            if i % (self.num_blocks + 1) == 0:
+                curr_block = int(i / self.num_blocks) + 1
+                continue
+            pre_dataframe.append([curr_block, i % (self.num_blocks + 1), file[i][2], file[i][0]])
+        self.results = np.array([np.array(x) for x in pre_dataframe])
+        self.results = pd.DataFrame(self.results)
+        self.results = self.results.set_axis(['Block', 'Trial', 'Label', 'Time'], axis=1, inplace=False)
