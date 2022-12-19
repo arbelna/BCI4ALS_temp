@@ -17,6 +17,8 @@ import numpy as np
 class Experiment:
     def __init__(self, eeg):
 
+        self.num_blocks = None
+        self.num_trials = None
         self.ask_num_blocks()
         self.ask_num_trials()
         self.eeg = eeg
@@ -28,8 +30,6 @@ class Experiment:
         # else:
         #     self.debug = False
 
-        self.num_blocks = None
-        self.num_trials = None
         self.cue_length = None
         self.trial_length = None
         self.session_directory = None
