@@ -9,9 +9,12 @@ from random import randrange
 from psychopy import visual, core, logging
 import random
 import pandas as pd
+from BCI4ALS.eeg import Eeg
 
 import brainflow
 import numpy as np
+
+import eeg
 
 
 class Experiment:
@@ -153,7 +156,7 @@ class Experiment:
             err = Tk()
             error("You should enter a number!")
 
-    def run_experiment(self):
+    def run_experiment(self, eeg):
 
         # overwrite (filemode='w') a detailed log of the last run in this dir
         lastLog = logging.LogFile("lastRun.log", level=logging.CRITICAL, filemode='w')
@@ -172,6 +175,8 @@ class Experiment:
                 core.wait(wait)
                 yes = visual.ImageStim(win=mywin, image=f'Pictures/{self.enum_image[self.labels[i][j]]}.jpg')
                 yes.draw()
+                # status: str, label: int, index: int
+                eeg.insert_marker(status='start', label=self.labels[i][j], index=j)
                 mywin.logOnFlip(level=logging.CRITICAL, msg=self.labels[i][j])
                 mywin.flip(clearBuffer=True)
                 core.wait(0.2)
