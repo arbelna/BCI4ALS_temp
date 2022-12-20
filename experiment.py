@@ -36,7 +36,7 @@ class Experiment:
         self.cue_length = None
         self.trial_length = None
         self.session_directory = None
-        self.enum_image = {0: 'yes', 1: 'no', 2: 'none'}
+        self.enum_image = {0: 'sad', 1: 'happy', 2: 'furious'}
         self.experiment_type = None
         self.skip_after = None
 
@@ -53,7 +53,7 @@ class Experiment:
             self.labels.append([])
             for j in range(self.num_trials):
                 temp = randrange(7)
-                if temp == 0:
+                if temp == 2:
                     self.labels[i].append(0)
                 elif temp == 1:
                     self.labels[i].append(1)
@@ -169,21 +169,21 @@ class Experiment:
             mywin.flip(clearBuffer=True)
             core.wait(3.0)
             mywin.close()
-            mywin = visual.Window([800, 600], monitor="testMonitor", units="deg")
+            mywin = visual.Window([800, 800], monitor="testMonitor", units="deg")
             for j in range(self.num_trials):
-                wait = random.uniform(0.45, 0.55)
+                wait = random.uniform(0.3, 0.6)
                 core.wait(wait)
-                yes = visual.ImageStim(win=mywin, image=f'Pictures/{self.enum_image[self.labels[i][j]]}.jpg')
+                yes = visual.ImageStim(win=mywin, image=f'Pictures/{self.enum_image[self.labels[i][j]]}.png')
                 yes.draw()
                 # status: str, label: int, index: int
-                eeg.insert_marker(status='start', label=self.labels[i][j], index=j)
                 mywin.logOnFlip(level=logging.CRITICAL, msg=self.labels[i][j])
                 mywin.flip(clearBuffer=True)
+                eeg.insert_marker(status='start', label=self.labels[i][j], index=j)
                 core.wait(0.2)
                 yes = visual.ImageStim(win=mywin)
                 yes.draw()
                 mywin.flip()
-                wait = 1 - 0.2 - wait
+                wait = 0.2 + wait
                 core.wait(wait)
             mywin.close()
 

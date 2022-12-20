@@ -8,6 +8,8 @@ eeg.clear_board()
 exp.run_experiment(eeg)
 data = eeg.get_stream_data()
 eeg.stream_off()
+
+durations, labels = eeg.extract_trials(data)  # channel 30 is the timestamp channel
 with open('raw_data.npy', 'wb') as f:
     np.save(f, data, allow_pickle=True)
 
