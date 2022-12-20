@@ -16,4 +16,4 @@ with open('raw_data.npy', 'wb') as f:
 
 df = exp.results
 df.to_csv('experiment_results.csv', index=False)
-print(exp)
+

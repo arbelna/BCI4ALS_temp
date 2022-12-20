@@ -198,3 +198,4 @@ class Experiment:
         self.results = np.array([np.array(x) for x in pre_dataframe])
         self.results = pd.DataFrame(self.results)
         self.results = self.results.set_axis(['Block', 'Trial', 'Label', 'Time'], axis=1, inplace=False)
+#         jj
