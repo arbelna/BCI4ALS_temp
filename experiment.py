@@ -9,7 +9,7 @@ from random import randrange
 from psychopy import visual, core, logging
 import random
 import pandas as pd
-from BCI4ALS.eeg import Eeg
+from eeg import Eeg
 
 import brainflow
 import numpy as np
@@ -197,4 +197,4 @@ class Experiment:
             pre_dataframe.append([curr_block, i % (self.num_blocks + 1), file[i][2], file[i][0]])
         self.results = np.array([np.array(x) for x in pre_dataframe])
         self.results = pd.DataFrame(self.results)
-        self.results = self.results.set_axis(['Block', 'Trial', 'Label', 'Time'], axis=1, inplace=False)
+        self.results = self.results.set_axis(['Block', 'Trial', 'Label', 'Time'], axis=1)

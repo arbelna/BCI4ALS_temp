@@ -1,5 +1,5 @@
 import experiment as ex
-from BCI4ALS.eeg import Eeg
+from eeg import Eeg
 import numpy as np
 eeg = Eeg()
 exp = ex.Experiment(eeg)
