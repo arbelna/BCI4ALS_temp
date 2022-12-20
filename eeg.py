@@ -209,7 +209,7 @@ class Eeg:
         """
         Encode a marker for the EEG data.
         :param status: status of the stim (start/end)
-        :param label: the label of the stim (Bibi -> 0, Sara -> 1, idle(Gantz) -> 2)
+        :param label: the label of the stim (Bibi -> 0, Sara -> 1, idle(Gantz) -> 2) 0 should be the false object
         :param index: index of the current label
         :return:
         """
