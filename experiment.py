@@ -219,7 +219,8 @@ class Experiment:
             if i % (self.num_blocks + 1) == 0:
                 curr_block = int(i / self.num_blocks) + 1
                 continue
-            pre_dataframe.append([curr_block, i % (self.num_blocks + 1), file[i][2], file[i][0]])
+            temp = file[i][2].split(" ")
+            pre_dataframe.append([curr_block, i % (self.num_blocks + 1), temp[0], file[i][0], temp[1]])
         self.results = np.array([np.array(x) for x in pre_dataframe])
         self.results = pd.DataFrame(self.results)
-        self.results = self.results.set_axis(['Block', 'Trial', 'Label', 'Time'], axis=1)
+        self.results = self.results.set_axis(['Block', 'Trial', 'Label', 'Time', 'Unix time'], axis=1)
