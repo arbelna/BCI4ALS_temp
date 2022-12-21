@@ -4,6 +4,7 @@ import sys
 from datetime import datetime
 from tkinter import messagebox
 from tkinter.filedialog import askdirectory
+import tkinter as tk
 from tkinter import Tk, Entry, Label, Button
 from random import randrange
 from psychopy import visual, core, logging
@@ -83,8 +84,15 @@ class Experiment:
 
     def ask_num_trials(self):
         # Define a function to return the Input data
-        def get_num_trials():
-            input1 = entry.get()
+
+        def get_num_trials_ent(event):
+            return get_num_trials(entry.get())
+
+        def get_num_trials(input=None):
+            if input is None:
+                input1 = entry.get()
+            else:
+                input1 = input
             try:
                 self.num_trials = int(input1)
             except:
@@ -96,9 +104,11 @@ class Experiment:
             Label(err, text=message, font=('Helvetica 14 bold')).pack(pady=20)
             # Create a button in the main Window to open the popup
             Button(err, text="Ok", command=cont).pack()
+            err.bind("<Return>", cont)
+            err.after(1, lambda: err.focus_force())
             err.mainloop()
 
-        def cont():
+        def cont(input):
             err.destroy()
             pass
 
@@ -109,9 +119,11 @@ class Experiment:
             win.geometry('400x300')
             entry = Entry(win, width=42)
             entry.place(relx=.5, rely=.2, anchor='center')
+            entry.after(1, lambda: entry.focus_force())
             label = Label(win, text="Enter the number of trials you want.", font=('Helvetica 13'))
             label.pack()
             Button(win, text="submit", command=get_num_trials).place(relx=.5, rely=.3)
+            win.bind("<Return>", get_num_trials_ent)
             win.mainloop()
 
             if self.num_trials is not None:
@@ -121,8 +133,14 @@ class Experiment:
 
     def ask_num_blocks(self):
         # Define a function to return the Input data
-        def get_num_block():
-            input1 = entry.get()
+        def get_num_block_ent(event):
+            return get_num_block(entry.get())
+
+        def get_num_block(input=None):
+            if input is None:
+                input1 = entry.get()
+            else:
+                input1 = input
             try:
                 self.num_blocks = int(input1)
             except:
@@ -134,9 +152,11 @@ class Experiment:
             Label(err, text=message, font=('Helvetica 14 bold')).pack(pady=20)
             # Create a button in the main Window to open the popup
             Button(err, text="Ok", command=cont).pack()
+            err.bind("<Return>", cont)
+            err.after(1, lambda: err.focus_force())
             err.mainloop()
 
-        def cont():
+        def cont(input):
             err.destroy()
             pass
 
@@ -147,9 +167,11 @@ class Experiment:
             win.geometry('400x300')
             entry = Entry(win, width=42)
             entry.place(relx=.5, rely=.2, anchor='center')
+            entry.after(1, lambda: entry.focus_force())
             label = Label(win, text="Enter the number of blocks you want.", font=('Helvetica 13'))
             label.pack()
             Button(win, text="submit", command=get_num_block).place(relx=.5, rely=.3)
+            win.bind("<Return>", get_num_block_ent)
             win.mainloop()
 
             if self.num_blocks is not None:
@@ -165,7 +187,8 @@ class Experiment:
         for i in range(self.num_blocks):
             mywin = visual.Window([800, 800], monitor="testMonitor", units="deg")
             look = random.randint(1, 2)
-            yes = visual.TextStim(mywin, f'Block number {i + 1} \n\n\n {self.enum_image[look]}', color=(1, 1, 1), colorSpace='rgb')
+            yes = visual.TextStim(mywin, f'Block number {i + 1} \n\n\n {self.enum_image[look]}', color=(1, 1, 1),
+                                  colorSpace='rgb')
             yes.draw()
             mywin.logOnFlip(level=logging.CRITICAL, msg=f'+{i + 1}')
             mywin.flip(clearBuffer=True)
@@ -180,7 +203,7 @@ class Experiment:
                 # status: str, label: int, index: int
                 mywin.logOnFlip(level=logging.CRITICAL, msg=f'{self.labels[i][j]} {time.time()}')
                 mywin.flip(clearBuffer=True)
-                eeg.insert_marker(status='start', label=self.labels[i][j], index=j)
+                # eeg.insert_marker(status='start', label=self.labels[i][j], index=j)
                 core.wait(0.2)
                 yes = visual.ImageStim(win=mywin)
                 yes.draw()
