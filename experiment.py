@@ -29,18 +29,7 @@ class Experiment:
         self.eeg = eeg
         self.results = []
 
-        # if self.eeg.board_id == brainflow.BoardIds.SYNTHETIC_BOARD:
-        #     messagebox.showwarning(title="bci4als WARNING", message="You are running a synthetic board!")
-        #     self.debug = True
-        # else:
-        #     self.debug = False
-
-        self.cue_length = None
-        self.trial_length = None
-        self.session_directory = None
         self.enum_image = {0: 'furious', 1: 'sad', 2: 'happy'}
-        self.experiment_type = None
-        self.skip_after = None
 
         #     labels
         self.labels = []
@@ -61,26 +50,6 @@ class Experiment:
                     self.labels[i].append(1)
                 else:
                     self.labels[i].append(0)
-
-    # def _ask_subject_directory(self):
-    #     """
-    #     init the current subject directory
-    #     :return: the subject directory
-    #     """
-    #
-    #     # get the CurrentStudy recording directory
-    #     if not messagebox.askokcancel(title='bci4als',
-    #                                   message="Welcome to the motor imagery EEG recorder."
-    #                                           "\n\nNumber of trials: {}\n\n"
-    #                                           "Please select the subject directory:".format(self.num_trials)):
-    #         sys.exit(-1)
-    #
-    #     # show an "Open" dialog box and return the path to the selected file
-    #     init_dir = os.path.join(os.path.split(os.path.abspath(''))[0], 'recordings')
-    #     subject_folder = askdirectory(initialdir=init_dir)
-    #     if not subject_folder:
-    #         sys.exit(-1)
-    #     return subject_folder
 
     def ask_num_trials(self):
         # Define a function to return the Input data
@@ -203,7 +172,7 @@ class Experiment:
                 # status: str, label: int, index: int
                 mywin.logOnFlip(level=logging.CRITICAL, msg=f'{self.labels[i][j]} {time.time()}')
                 mywin.flip(clearBuffer=True)
-                # eeg.insert_marker(status='start', label=self.labels[i][j], index=j)
+                eeg.insert_marker(status='start', label=self.labels[i][j], index=j)
                 core.wait(0.2)
                 yes = visual.ImageStim(win=mywin)
                 yes.draw()
