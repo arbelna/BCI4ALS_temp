@@ -10,6 +10,7 @@ from psychopy import visual, core, logging
 import random
 import pandas as pd
 from eeg import Eeg
+import time
 
 import brainflow
 import numpy as np
@@ -36,7 +37,7 @@ class Experiment:
         self.cue_length = None
         self.trial_length = None
         self.session_directory = None
-        self.enum_image = {0: 'yes', 1: 'no', 2: 'none'}
+        self.enum_image = {0: 'furious', 1: 'sad', 2: 'happy'}
         self.experiment_type = None
         self.skip_after = None
 
@@ -53,12 +54,12 @@ class Experiment:
             self.labels.append([])
             for j in range(self.num_trials):
                 temp = randrange(7)
-                if temp == 0:
-                    self.labels[i].append(0)
+                if temp == 2:
+                    self.labels[i].append(2)
                 elif temp == 1:
                     self.labels[i].append(1)
                 else:
-                    self.labels[i].append(2)
+                    self.labels[i].append(0)
 
     # def _ask_subject_directory(self):
     #     """
@@ -162,23 +163,24 @@ class Experiment:
         lastLog = logging.LogFile("lastRun.log", level=logging.CRITICAL, filemode='w')
 
         for i in range(self.num_blocks):
-            mywin = visual.Window([800, 600], monitor="testMonitor", units="deg")
-            yes = visual.TextStim(mywin, f'Block number {i + 1}', color=(1, 1, 1), colorSpace='rgb')
+            mywin = visual.Window([800, 800], monitor="testMonitor", units="deg")
+            look = random.randint(1, 2)
+            yes = visual.TextStim(mywin, f'Block number {i + 1} \n\n\n {self.enum_image[look]}', color=(1, 1, 1), colorSpace='rgb')
             yes.draw()
             mywin.logOnFlip(level=logging.CRITICAL, msg=f'+{i + 1}')
             mywin.flip(clearBuffer=True)
             core.wait(3.0)
             mywin.close()
-            mywin = visual.Window([800, 600], monitor="testMonitor", units="deg")
+            mywin = visual.Window([800, 800], monitor="testMonitor", units="deg")
             for j in range(self.num_trials):
-                wait = random.uniform(0.45, 0.55)
+                wait = random.uniform(0.3, 0.6)
                 core.wait(wait)
-                yes = visual.ImageStim(win=mywin, image=f'Pictures/{self.enum_image[self.labels[i][j]]}.jpg')
+                yes = visual.ImageStim(win=mywin, image=f'Pictures/{self.enum_image[self.labels[i][j]]}.png')
                 yes.draw()
                 # status: str, label: int, index: int
-                eeg.insert_marker(status='start', label=self.labels[i][j], index=j)
-                mywin.logOnFlip(level=logging.CRITICAL, msg=self.labels[i][j])
+                mywin.logOnFlip(level=logging.CRITICAL, msg=f'{self.labels[i][j]} {time.time()}')
                 mywin.flip(clearBuffer=True)
+                eeg.insert_marker(status='start', label=self.labels[i][j], index=j)
                 core.wait(0.2)
                 yes = visual.ImageStim(win=mywin)
                 yes.draw()
