@@ -1,10 +1,4 @@
-import os
-
-import sys
-from datetime import datetime
-from tkinter import messagebox
-from tkinter.filedialog import askdirectory
-import tkinter as tk
+# importing relevant libraries
 from tkinter import Tk, Entry, Label, Button
 from random import randrange
 from psychopy import visual, core, logging
@@ -12,16 +6,16 @@ import random
 import pandas as pd
 from eeg import Eeg
 import time
-
-import brainflow
 import numpy as np
-
 import eeg
 
 
 class Experiment:
     def __init__(self, eeg):
-
+        """
+        This is the constructor method that is called when an object of this class is created.
+        It initializes several instance variables
+        """
         self.num_blocks = None
         self.num_trials = None
         self.ask_num_blocks()
@@ -53,11 +47,17 @@ class Experiment:
 
     def ask_num_trials(self):
         # Define a function to return the Input data
-
+        """
+        This method prompts the user to enter the number of trials they want in their experiment.
+         If the input is not a valid number, it displays an error message.
+         :param: input: none
+        :return:  the number of trials
+        """
         def get_num_trials_ent(event):
             return get_num_trials(entry.get())
 
         def get_num_trials(input=None):
+
             if input is None:
                 input1 = entry.get()
             else:
@@ -102,6 +102,11 @@ class Experiment:
 
     def ask_num_blocks(self):
         # Define a function to return the Input data
+        """
+        This method prompts the user to enter the number of blocks they want in their experiment.
+         If the input is not a valid number, it displays an error message.
+        :return: the number of desired blocks
+        """
         def get_num_block_ent(event):
             return get_num_block(entry.get())
 
@@ -149,16 +154,24 @@ class Experiment:
             error("You should enter a number!")
 
     def run_experiment(self, eeg):
+        """
+        This method runs the experiment by displaying images to the user and collecting their responses.
+         It stores the results in the results instance variable.
+        :param eeg:
+        :return: csv file with expermient results
+        Target: 1=happy 2= sad
+        image: 0= distractor/furious 1=happy 2=sad, when 1 or 2 are target or non target
+        """
 
         # overwrite (filemode='w') a detailed log of the last run in this dir
         lastLog = logging.LogFile("lastRun.log", level=logging.CRITICAL, filemode='w')
 
         for i in range(self.num_blocks):
             mywin = visual.Window([800, 800], monitor="testMonitor", units="deg")
-            look = random.randint(1, 2)
-            yes = visual.TextStim(mywin, f'Block number {i + 1} \n\n\n {self.enum_image[look]}', color=(1, 1, 1),
+            look = (i % 2) + 1
+            start_block_win = visual.TextStim(mywin, f'Block number {i + 1} \n\n\n {self.enum_image[look]}', color=(1, 1, 1),
                                   colorSpace='rgb')
-            yes.draw()
+            start_block_win.draw()
             mywin.logOnFlip(level=logging.CRITICAL, msg=f'+{i + 1}')
             mywin.flip(clearBuffer=True)
             core.wait(3.0)
@@ -167,15 +180,15 @@ class Experiment:
             for j in range(self.num_trials):
                 wait = random.uniform(0.3, 0.6)
                 core.wait(wait)
-                yes = visual.ImageStim(win=mywin, image=f'Pictures/{self.enum_image[self.labels[i][j]]}.png')
-                yes.draw()
+                start_block_win = visual.ImageStim(win=mywin, image=f'Pictures/{self.enum_image[self.labels[i][j]]}.png')
+                start_block_win.draw()
                 # status: str, label: int, index: int
-                mywin.logOnFlip(level=logging.CRITICAL, msg=f'{self.labels[i][j]} {time.time()}')
+                mywin.logOnFlip(level=logging.CRITICAL, msg=f'{self.labels[i][j]} {time.time()} {look}')
                 mywin.flip(clearBuffer=True)
                 eeg.insert_marker(status='start', label=self.labels[i][j], index=j)
                 core.wait(0.2)
-                yes = visual.ImageStim(win=mywin)
-                yes.draw()
+                start_block_win = visual.ImageStim(win=mywin)
+                start_block_win.draw()
                 mywin.flip()
                 wait = 1 - 0.2 - wait
                 core.wait(wait)
@@ -184,12 +197,16 @@ class Experiment:
         with open('lastRun.log') as file:
             file = [line.rstrip('\n').split('\t') for line in file]
         pre_dataframe = []
-        for i in range(self.num_blocks * self.num_trials + self.num_blocks):
-            if i % (self.num_blocks + 1) == 0:
-                curr_block = int(i / self.num_blocks) + 1
+        curr_block = 0
+
+        for line in file:
+            temp = line[2].split(" ")
+            if len(temp) == 1:
+                curr_block += 1
+                curr_trial = 0
                 continue
-            temp = file[i][2].split(" ")
-            pre_dataframe.append([curr_block, i % (self.num_blocks + 1), temp[0], file[i][0], temp[1]])
+            curr_trial += 1
+            pre_dataframe.append([curr_block, curr_trial, temp[0], temp[2], line[0], temp[1]])
         self.results = np.array([np.array(x) for x in pre_dataframe])
         self.results = pd.DataFrame(self.results)
-        self.results = self.results.set_axis(['Block', 'Trial', 'Label', 'Time', 'Unix time'], axis=1)
+        self.results = self.results.set_axis(['Block', 'Trial', 'Label', 'Target', 'Time', 'Unix time'], axis=1)
