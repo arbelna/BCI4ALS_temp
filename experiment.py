@@ -6,9 +6,11 @@ import random
 import pandas as pd
 from eeg import Eeg
 import time
-import numpy as np
-import eeg
 
+import brainflow
+import numpy as np
+
+import eeg
 
 class Experiment:
     def __init__(self, eeg):
@@ -57,7 +59,6 @@ class Experiment:
             return get_num_trials(entry.get())
 
         def get_num_trials(input=None):
-
             if input is None:
                 input1 = entry.get()
             else:
