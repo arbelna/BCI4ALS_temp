@@ -211,3 +211,13 @@ class Experiment:
         self.results = np.array([np.array(x) for x in pre_dataframe])
         self.results = pd.DataFrame(self.results)
         self.results = self.results.set_axis(['Block', 'Trial', 'Label', 'Target', 'Time', 'Unix time'], axis=1)
+      def tar_block(self):
+        target = []
+        target_num = []
+        num = self.df['Trial'].nunique() + 1
+        for idx, row in self.df.iterrows():
+            if idx % num == 0:
+                target_num.append(int(row[3]))
+        for j in range(len(target_num)):
+            target.append(self.enum_image[target_num[j]])
+      return target

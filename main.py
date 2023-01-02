@@ -21,5 +21,4 @@ file.close()
 
 
 df = exp.results
-df.to_csv('yoav_experiment_results(1).csv', index=False)
-print(exp)
+df.to_csv('experiment_results.csv', index=False)
