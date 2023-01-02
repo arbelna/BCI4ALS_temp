@@ -36,7 +36,7 @@ class Experiment:
         self.cue_length = None
         self.trial_length = None
         self.session_directory = None
-        self.enum_image = {0: 'sad', 1: 'happy', 2: 'furious'}
+        self.enum_image = {0: 'furious', 1: 'sad', 2: 'happy'}
         self.experiment_type = None
         self.skip_after = None
 
@@ -60,25 +60,53 @@ class Experiment:
                 else:
                     self.labels[i].append(2)
 
-    # def _ask_subject_directory(self):
-    #     """
-    #     init the current subject directory
-    #     :return: the subject directory
-    #     """
-    #
-    #     # get the CurrentStudy recording directory
-    #     if not messagebox.askokcancel(title='bci4als',
-    #                                   message="Welcome to the motor imagery EEG recorder."
-    #                                           "\n\nNumber of trials: {}\n\n"
-    #                                           "Please select the subject directory:".format(self.num_trials)):
-    #         sys.exit(-1)
-    #
-    #     # show an "Open" dialog box and return the path to the selected file
-    #     init_dir = os.path.join(os.path.split(os.path.abspath(''))[0], 'recordings')
-    #     subject_folder = askdirectory(initialdir=init_dir)
-    #     if not subject_folder:
-    #         sys.exit(-1)
-    #     return subject_folder
+    def _ask_subject_directory(self):
+        """
+        init the current subject directory
+        :return: the subject directory
+        """
+
+        # get the CurrentStudy recording directory
+        if not messagebox.askokcancel(title='bci4als',
+                                      message="Welcome to the motor imagery EEG recorder."
+                                              "\n\nNumber of trials: {}\n\n"
+                                              "Please select the subject directory:".format(self.num_trials)):
+            sys.exit(-1)
+
+        # show an "Open" dialog box and return the path to the selected file
+        init_dir = os.path.join(os.path.split(os.path.abspath(''))[0], 'recordings')
+        subject_folder = askdirectory(initialdir=init_dir)
+        if not subject_folder:
+            sys.exit(-1)
+        return subject_folder
+
+    @staticmethod
+    def create_session_folder(subject_folder):
+        """
+        The method create new folder for the current session. The folder will be at the given subject
+        folder.
+        The method also creating a metadata file and locate it inside the session folder
+        :param subject_folder: path to the subject folder
+        :return: session folder path
+        """
+
+        current_sessions = []
+        for f in os.listdir(subject_folder):
+
+            # try to convert the current sessions folder to int
+            # and except if one of the sessions folder is not integer
+            try:
+                current_sessions.append(int(f))
+
+            except ValueError:
+                continue
+
+        # Create the new session folder
+        session = (max(current_sessions) + 1) if len(current_sessions) > 0 else 1
+        session_folder = os.path.join(subject_folder, str(session))
+        os.mkdir(session_folder)
+
+        return session_folder
 
     def ask_num_trials(self):
         # Define a function to return the Input data
@@ -162,7 +190,7 @@ class Experiment:
         lastLog = logging.LogFile("lastRun.log", level=logging.CRITICAL, filemode='w')
 
         for i in range(self.num_blocks):
-            mywin = visual.Window([800, 600], monitor="testMonitor", units="deg")
+            mywin = visual.Window([800, 800], monitor="testMonitor", units="deg")
             yes = visual.TextStim(mywin, f'Block number {i + 1}', color=(1, 1, 1), colorSpace='rgb')
             yes.draw()
             mywin.logOnFlip(level=logging.CRITICAL, msg=f'+{i + 1}')
@@ -183,7 +211,7 @@ class Experiment:
                 yes = visual.ImageStim(win=mywin)
                 yes.draw()
                 mywin.flip()
-                wait = 0.2 + wait
+                wait = 1 - 0.2 - wait
                 core.wait(wait)
             mywin.close()
 
@@ -198,4 +226,13 @@ class Experiment:
         self.results = np.array([np.array(x) for x in pre_dataframe])
         self.results = pd.DataFrame(self.results)
         self.results = self.results.set_axis(['Block', 'Trial', 'Label', 'Time'], axis=1, inplace=False)
-#         jj
+    def tar_block(self):
+        target = []
+        target_num = []
+        num = self.df['Trial'].nunique() + 1
+        for idx, row in self.df.iterrows():
+            if idx % num == 0:
+                target_num.append(int(row[3]))
+        for j in range(len(target_num)):
+            target.append(self.enum_image[target_num[j]])
+        return target
