@@ -75,10 +75,9 @@ class PreOnline:
                         segmented_dist[channel][jdx] = distract
                     else:
                         seg_dist_del.append([channel, jdx])
-            segmented_happy = np.delete(segmented_target, seg_tar_del, axis=1)
-            segmented_sad = np.delete(segmented_non_target, seg_non_tar_del, axis=1)
-            segmented_dist = np.delete(segmented_dist, seg_dist_del, axis=1)
-        return segmented_happy, segmented_sad, segmented_dist
+            self.segmented_happy = np.delete(segmented_target, seg_tar_del, axis=1)
+            self.segmented_sad = np.delete(segmented_non_target, seg_non_tar_del, axis=1)
+            self.segmented_dist = np.delete(segmented_dist, seg_dist_del, axis=1)
 
     def downsampling(self):
         original_sample_rate = 125  # Hz
