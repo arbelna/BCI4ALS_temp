@@ -9,6 +9,7 @@ import time
 import brainflow
 import numpy as np
 import eeg
+import pickle
 
 
 class Experiment:
@@ -40,7 +41,7 @@ class Experiment:
             for j in range(self.num_trials):
                 temp = randrange(7)
                 if temp == 2:
-                    self.labels[i].append(0)
+                    self.labels[i].append(2)
                 elif temp == 1:
                     self.labels[i].append(1)
                 else:
@@ -177,7 +178,7 @@ class Experiment:
             start_block_win.draw()
             mywin.logOnFlip(level=logging.CRITICAL, msg=f'+{i + 1}')
             mywin.flip(clearBuffer=True)
-            core.wait(30.0)
+            core.wait(10.0)
             mywin.close()
             mywin = visual.Window([800, 800], monitor="testMonitor", units="deg")
             for j in range(self.num_trials):

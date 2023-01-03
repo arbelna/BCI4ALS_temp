@@ -8,10 +8,10 @@ __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file
 
 
 class Preprocessing:
-    def __init__(self, df, blocks_dict):
+    def __init__(self, df):
         self.enum_image = {0: 'furious', 1: 'sad', 2: 'happy'}
         self.df = df
-        self.blocks_dict = blocks_dict
+        self.blocks_dict = None
         self.tar_arr = None
         self.non_tar_arr = None
         self.dist_arr = None
@@ -70,6 +70,7 @@ class Preprocessing:
                              data[idx['CP5']]) / 4
         # return data[[idx['C3'], idx['C4']]]
         return data
+
 
     def filter_data(self, data, lowcut, highcut, sample_freq, notch_freq):
         y = mne.filter.notch_filter(data, Fs=sample_freq, freqs=notch_freq, verbose=False)
@@ -148,7 +149,8 @@ class Preprocessing:
             dict[f'Block_{blok}']['target'] = segmented_target
             dict[f'Block_{blok}']['non target'] = segmented_non_target
             dict[f'Block_{blok}']['distractor'] = segmented_dist
-        return dict
+        self.dict = dict
+        # return dict
 
     def mean_trials(self, arrays_of_blocks):
         """
