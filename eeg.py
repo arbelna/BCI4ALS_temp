@@ -50,7 +50,7 @@ class Eeg:
         self.board = BoardShim(self.board_id, self.params)
         self.board.enable_dev_board_logger()
         # print(BoardShim.get_board_descr(board_id))  # Get board description
-        # print(json.dumps(self.board.get_board_descr(self.board_id), indent=4))  # Get pretty board description
+        print(json.dumps(self.board.get_board_descr(self.board_id), indent=4))  # Get pretty board description
         # Other Params
         self.sample_freq = self.board.get_sampling_rate(board_id)  # type int
         self.marker_row = self.board.get_marker_channel(board_id)  # type int

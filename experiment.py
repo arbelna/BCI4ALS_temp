@@ -6,11 +6,11 @@ import random
 import pandas as pd
 from eeg import Eeg
 import time
-
 import brainflow
 import numpy as np
-
 import eeg
+import pickle
+
 
 class Experiment:
     def __init__(self, eeg):
@@ -55,6 +55,7 @@ class Experiment:
          :param: input: none
         :return:  the number of trials
         """
+
         def get_num_trials_ent(event):
             return get_num_trials(entry.get())
 
@@ -108,6 +109,7 @@ class Experiment:
          If the input is not a valid number, it displays an error message.
         :return: the number of desired blocks
         """
+
         def get_num_block_ent(event):
             return get_num_block(entry.get())
 
@@ -160,8 +162,8 @@ class Experiment:
          It stores the results in the results instance variable.
         :param eeg:
         :return: csv file with expermient results
-        Target: 1=happy 2= sad
-        image: 0= distractor/furious 1=happy 2=sad, when 1 or 2 are target or non target
+        Target: 1 = sad, 2 = happy
+        image: 0 = distractor/furious,1 = sad, 2 = happy, when 1 or 2 are target or non target
         """
 
         # overwrite (filemode='w') a detailed log of the last run in this dir
@@ -170,18 +172,20 @@ class Experiment:
         for i in range(self.num_blocks):
             mywin = visual.Window([800, 800], monitor="testMonitor", units="deg")
             look = (i % 2) + 1
-            start_block_win = visual.TextStim(mywin, f'Block number {i + 1} \n\n\n {self.enum_image[look]}', color=(1, 1, 1),
-                                  colorSpace='rgb')
+            start_block_win = visual.TextStim(mywin, f'Block number {i + 1} \n\n\n {self.enum_image[look]}',
+                                              color=(1, 1, 1),
+                                              colorSpace='rgb')
             start_block_win.draw()
             mywin.logOnFlip(level=logging.CRITICAL, msg=f'+{i + 1}')
             mywin.flip(clearBuffer=True)
-            core.wait(3.0)
+            core.wait(10.0)
             mywin.close()
             mywin = visual.Window([800, 800], monitor="testMonitor", units="deg")
             for j in range(self.num_trials):
                 wait = random.uniform(0.3, 0.6)
                 core.wait(wait)
-                start_block_win = visual.ImageStim(win=mywin, image=f'Pictures/{self.enum_image[self.labels[i][j]]}.png')
+                start_block_win = visual.ImageStim(win=mywin,
+                                                   image=f'Pictures/{self.enum_image[self.labels[i][j]]}.png')
                 start_block_win.draw()
                 # status: str, label: int, index: int
                 mywin.logOnFlip(level=logging.CRITICAL, msg=f'{self.labels[i][j]} {time.time()} {look}')
@@ -211,7 +215,8 @@ class Experiment:
         self.results = np.array([np.array(x) for x in pre_dataframe])
         self.results = pd.DataFrame(self.results)
         self.results = self.results.set_axis(['Block', 'Trial', 'Label', 'Target', 'Time', 'Unix time'], axis=1)
-      def tar_block(self):
+
+    def tar_block(self):
         target = []
         target_num = []
         num = self.df['Trial'].nunique() + 1
@@ -220,4 +225,4 @@ class Experiment:
                 target_num.append(int(row[3]))
         for j in range(len(target_num)):
             target.append(self.enum_image[target_num[j]])
-      return target
+        return target

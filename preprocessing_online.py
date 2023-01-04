@@ -3,12 +3,12 @@ import scipy.signal as signal
 
 
 class PreOnline:
-    def __init__(self, target, labels, segmented_happy, segmented_sad, segmentes_distract):
+    def __init__(self, target, labels):
         self.target = target
         self.labels = labels
-        self.segmented_happy = segmented_happy
-        self.segmented_sad = segmented_sad
-        self.segmentes_distract = segmentes_distract
+        self.segmented_happy = None
+        self.segmented_sad = None
+        self.segmentes_distract = None
 
     def markers(self, target, labels):
         dict_idx = {'distractor_indexes': [], 'target_indexes': [], 'non_target_indexes': []}
@@ -40,45 +40,41 @@ class PreOnline:
         target_idx = dict_idx['target_indexes']
         non_target_idx = dict_idx['non_target_indexes']
         dist_idx = dict_idx['distractor_indexes']
-        dict = {}
-        for blok in range(durations.shape[0]):
-            dict[f'Block_{blok}'] = {}
-            segmented_target = np.zeros((eeg_data.shape[0], target_idx[blok].shape[0], fs))
-            segmented_non_target = np.zeros((eeg_data.shape[0], non_target_idx[blok].shape[0], fs))
-            segmented_dist = np.zeros((eeg_data.shape[0], dist_idx[blok].shape[0], fs))
-            seg_tar_del = []
-            seg_non_tar_del = []
-            seg_dist_del = []
-            # l = 0
-            for channel in range(eeg_data.shape[0]):
-                for seg in range(target_idx[blok].shape[0]):
-                    target = eeg_data[channel][int(durations[blok][target_idx[blok][seg]] - 25):int(durations[blok][target_idx[blok][seg]] + 100)]
-                    if eeg_data[channel][int(durations[blok][target_idx[blok][seg]] - 25):int(durations[blok][target_idx[blok][seg]] + 100)].shape[0] != 125:
-                        break
-                    if np.max(np.abs(target)) < 100e-06:
-                        segmented_target[channel][seg] = target
-                    else:
-                        seg_tar_del.append([channel, seg])
-                for jj in range(non_target_idx[blok].shape[0]):
-                    non_target = eeg_data[channel][int(durations[blok][non_target_idx[blok][jj]] - 25):int(durations[blok][non_target_idx[blok][jj]] + 100)]
-                    if eeg_data[channel][int(durations[blok][non_target_idx[blok][jj]] - 25):int(durations[blok][non_target_idx[blok][jj]] + 100)].shape[0] != 125:
-                        break
-                    if np.max(np.abs(non_target)) < 100e-06:
-                        segmented_non_target[channel][jj] = non_target
-                    else:
-                        seg_non_tar_del.append([channel, jj])
-                for jdx in range(dist_idx[blok].shape[0]):
-                    distract = eeg_data[channel][int(durations[blok][dist_idx[blok][jdx]] - 25):int(durations[blok][dist_idx[blok][jdx]] + 100)]
-                    if eeg_data[channel][int(durations[blok][dist_idx[blok][jdx]] - 25):int(durations[blok][dist_idx[blok][jdx]] + 100)].shape[0] != 125:
-                        break
-                    if np.max(np.abs(distract)) < 100e-06:
-                        segmented_dist[channel][jdx] = distract
-                    else:
-                        seg_dist_del.append([channel, jdx])
-            segmented_happy = np.delete(segmented_target, seg_tar_del, axis=1)
-            segmented_sad = np.delete(segmented_non_target, seg_non_tar_del, axis=1)
-            segmented_dist = np.delete(segmented_dist, seg_dist_del, axis=1)
-        return segmented_happy, segmented_sad, segmented_dist
+        # for blok in range(target.shape[0]):
+        segmented_target = np.zeros((eeg_data.shape[0], target_idx.shape[0], fs))
+        segmented_non_target = np.zeros((eeg_data.shape[0], non_target_idx.shape[0], fs))
+        segmented_dist = np.zeros((eeg_data.shape[0], dist_idx.shape[0], fs))
+        seg_tar_del = []
+        seg_non_tar_del = []
+        seg_dist_del = []
+        for channel in range(eeg_data.shape[0]):
+            for seg in range(target_idx.shape[0]):
+                target = eeg_data[channel][int(durations[0][target_idx[seg]] - 25):int(durations[0][target_idx[seg]] + 100)]
+                if eeg_data[channel][int(durations[0][target_idx[seg]] - 25):int(durations[0][target_idx[seg]] + 100)].shape[0] != 125:
+                    break
+                if np.max(np.abs(target)) < 100e-06:
+                    segmented_target[channel][seg] = target
+                else:
+                    seg_tar_del.append([channel, seg])
+            for jj in range(non_target_idx.shape[0]):
+                non_target = eeg_data[channel][int(durations[0][non_target_idx[jj]] - 25):int(durations[0][non_target_idx[jj]] + 100)]
+                if eeg_data[channel][int(durations[0][non_target_idx[jj]] - 25):int(durations[0][non_target_idx[jj]] + 100)].shape[0] != 125:
+                    break
+                if np.max(np.abs(non_target)) < 100e-06:
+                    segmented_non_target[channel][jj] = non_target
+                else:
+                    seg_non_tar_del.append([channel, jj])
+            for jdx in range(dist_idx.shape[0]):
+                distract = eeg_data[channel][int(durations[0][dist_idx[jdx]] - 25):int(durations[0][dist_idx[jdx]] + 100)]
+                if eeg_data[channel][int(durations[0][dist_idx[jdx]] - 25):int(durations[0][dist_idx[jdx]] + 100)].shape[0] != 125:
+                    break
+                if np.max(np.abs(distract)) < 100e-06:
+                    segmented_dist[channel][jdx] = distract
+                else:
+                    seg_dist_del.append([channel, jdx])
+        self.segmented_happy = np.delete(segmented_target, seg_tar_del, axis=1)
+        self.segmented_sad = np.delete(segmented_non_target, seg_non_tar_del, axis=1)
+        self.segmented_dist = np.delete(segmented_dist, seg_dist_del, axis=1)
 
     def downsampling(self):
         original_sample_rate = 125  # Hz
