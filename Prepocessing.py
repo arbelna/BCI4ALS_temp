@@ -199,12 +199,12 @@ class Preprocessing:
         ten_twenty_montage = mne.channels.make_standard_montage('standard_1020')
         raw.set_montage(ten_twenty_montage)
         ica_.fit(raw)
-        ica_.plot_sources(raw, show_scrollbars=False)
-        ica_.plot_components()
+        # ica_.plot_sources(raw, show_scrollbars=False)
+        # ica_.plot_components()
         ica_.exclude = [10]
         reconst_raw = raw.copy()
         raw_clean = ica_.apply(reconst_raw)
-        ica_.plot_sources(raw_clean, show_scrollbars=False)
+        # ica_.plot_sources(raw_clean, show_scrollbars=False)
         data, times = raw_clean[:, :]
         return data, times
 

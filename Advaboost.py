@@ -28,9 +28,9 @@ class Adva_boost:
     def read_data(self, data_path, train=True):
         if train:
             with open(data_path, 'rb') as f:
-                downsampled_target = np.load(f)
-                downsampled_non_target = np.load(f)
-                downsampled_dist = np.load(f)
+                downsampled_target = np.load(f, allow_pickle=True)
+                downsampled_non_target = np.load(f, allow_pickle=True)
+                downsampled_dist = np.load(f, allow_pickle=True)
                 return [downsampled_target, downsampled_non_target, downsampled_dist]
         else:
             with open(data_path, 'rb') as f:
@@ -79,58 +79,62 @@ class Adva_boost:
         X_train, X_test, y_train, y_test = train_test_split(self.X_Train, self.Y_Train, test_size=0.1,
                                                             random_state=1543)
         # X_train, y_train = self.X_Train, self.Y_Train
-        """
-        First try with AdaBoost model using SVM as estimator
-        
-        # accuracy_test_list = []
-        # accuracy_train_list = []
-        # estimator_errors_list = []
-        # n_estims = [1, 3, 10, 50, 100, 1000, 5000]
-        # models_list = []
-        # for n in n_estims:
-        #     svc = LinearSVC(tol=1e-10, loss='hinge', C=100, max_iter=50000)
-        #     # svc = SVC(tol=1e-5, degree=50, max_iter=50000)
-        #     # Create adaboost classifer object
-        #     abc = AdaBoostClassifier(estimator=None, n_estimators=n, algorithm='SAMME')
-        #     abc = RandomForestClassifier(n_estimators=n, max_depth=15)
-        #     # Train Adaboost Classifer
-        #     model = abc.fit(X_train, y_train)
-        #     # creating a list that will hold all of the 7 models
-        #     models_list.append(model)
-        #     # Predict the response for test dataset
-        #     y_pred = model.predict(X_test)
-        #     y_pred_train = model.predict(X_train)
-        #
-        #     # Model Accuracy, how often is the classifier correct?
-        #     print(f"number of estimators:", n)
-        #     print("Test Accuracy:", accuracy_score(y_test, y_pred))
-        #     accuracy_test_list.append(accuracy_score(y_test, y_pred))
-        #     print("Accuracy on the train data:", accuracy_score(y_train, y_pred_train))
-        #     print('')
-        #     accuracy_train_list.append(accuracy_score(y_train, y_pred_train))
-        #     # print(abc.estimator_errors_ )
-        #     # estimator_errors_list.append(abc.estimator_errors_)
-        
-        # grid-search to RandomForestClassifier in order to find the best hyperparameters
-        clf = RandomForestClassifier()
-        parameters = {'n_estimators': [1000, 1500, 2000],
-                      'criterion': ['gini', 'entropy', 'log_loss'],
-                      'max_depth': [15, 20],
-                      'max_features': ['sqrt', 'log2', None]
-                      }
-        warnings.filterwarnings('ignore')
 
-        grid_obj = GridSearchCV(clf, parameters, return_train_score=True, scoring=f1_score, verbose=10)
-        grid_obj = grid_obj.fit(X_train, y_train)
-        print(grid_obj.best_params_)
-        clf = grid_obj.best_estimator_
-        clf.fit(X_train, y_train)
-        print("Accuracy score on train set:" + str(accuracy_score(y_train, clf.predict(X_train))))
-        print("Accuracy score on test set:" + str(accuracy_score(y_test, clf.predict(X_test))))
-        cm = confusion_matrix(y_test, clf.predict(X_test), labels=clf.classes_)
-        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=clf.classes_)
-        disp.plot()
+        # First try with AdaBoost model using SVM as estimator
+
+        accuracy_test_list = []
+        accuracy_train_list = []
+        estimator_errors_list = []
+        n_estims = [1, 3, 10, 50, 100, 1000, 1500, 5000]
+        models_list = []
+        for n in n_estims:
+            abc = RandomForestClassifier(ccp_alpha=0, criterion='log_loss', max_depth=15, max_features='log2',
+                                         n_estimators=n)
+            # Train Adaboost Classifer
+            model = abc.fit(X_train, y_train)
+            # creating a list that will hold all of the 7 models
+            models_list.append(model)
+            # Predict the response for test dataset
+            y_pred = model.predict(X_test)
+            y_pred_train = model.predict(X_train)
+
+            # Model Accuracy, how often is the classifier correct?
+            print(f"number of estimators:", n)
+            print("Test Accuracy:", accuracy_score(y_test, y_pred))
+            accuracy_test_list.append(accuracy_score(y_test, y_pred))
+            print("Accuracy on the train data:", accuracy_score(y_train, y_pred_train))
+            print('')
+            accuracy_train_list.append(accuracy_score(y_train, y_pred_train))
+            # print(abc.estimator_errors_ )
+            # estimator_errors_list.append(abc.estimator_errors_)
+        plt.plot(n_estims, accuracy_test_list, '-o')
+        # plt.plot(n_estims,)
+        plt.xscale('log')
+        plt.xlabel('n_estimators')
+        plt.ylabel('accuracy')
+        plt.title('How does the overall train set accuracy change with  n')
         plt.show()
+
+        # grid-search to RandomForestClassifier in order to find the best hyperparameters
+        # clf = RandomForestClassifier()
+        # parameters = {'n_estimators': [1000, 1500, 2000],
+        #               'criterion': ['gini', 'entropy', 'log_loss'],
+        #               'max_depth': [15, 20],
+        #               'max_features': ['sqrt', 'log2', None]
+        #               }
+        # warnings.filterwarnings('ignore')
+        #
+        # grid_obj = GridSearchCV(clf, parameters, return_train_score=True, scoring=f1_score, verbose=10)
+        # grid_obj = grid_obj.fit(X_train, y_train)
+        # print(grid_obj.best_params_)
+        # clf = grid_obj.best_estimator_
+        # clf.fit(X_train, y_train)
+        # print("Accuracy score on train set:" + str(accuracy_score(y_train, clf.predict(X_train))))
+        # print("Accuracy score on test set:" + str(accuracy_score(y_test, clf.predict(X_test))))
+        # cm = confusion_matrix(y_test, clf.predict(X_test), labels=clf.classes_)
+        # disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=clf.classes_)
+        # disp.plot()
+        # plt.show()
         """
 
         self.clf = RandomForestClassifier(ccp_alpha=0, criterion='log_loss', max_depth=15, max_features='log2',
@@ -146,7 +150,7 @@ class Adva_boost:
         plt.show()
 
     def test_model(self, path):
-        self.test_data = self.read_data(path, False)
+        self.test_data = self.read_data(path, True)
         self.X_Test_happy, self.X_Test_sad = self.Preprocess(self.test_data, False)
         # happy_predicted_classes = Counter(self.clf.predict(self.X_Test_happy))
         happy_predicted_classes = self.clf.predict(self.X_Test_happy)
@@ -168,6 +172,7 @@ class Adva_boost:
                 else:
                     happy_res_per_trail.append(0)
                 happy_res = 0
+        happy_compo_chances = sum(happy_predicted_classes) / len(happy_predicted_classes)
         happy_target_chances = sum(happy_res_per_trail) / len(happy_res_per_trail)
         # happy_target_chances = np.average(np.average(happy_predicted_classes, axis=1, weights=[1, 0])) / 5
 
@@ -191,10 +196,29 @@ class Adva_boost:
         # sad_predicted_classes = [1 if x > .5 else 0 for x in sad_predicted_classes]
 
         # sad_predicted_classes = [1 if x == 1 else 0 for x in sad_predicted_classes]
+        sad_compo_chances = sum(sad_predicted_classes) / len(sad_predicted_classes)
         sad_predicted_chances = sum(sad_res_per_trail) / len(sad_res_per_trail)
         # sad_predicted_chances = np.average(np.average(sad_predicted_classes, axis=1, weights=[1, 0])) / 5
-        accuracy = (happy_target_chances * len(happy_res_per_trail) + (1 - sad_predicted_chances)
-                    * len(sad_res_per_trail)) / (len(happy_res_per_trail) + len(sad_res_per_trail))
+
+        accuracy_componenta = (happy_compo_chances * len(happy_predicted_classes) + (1 - sad_compo_chances) * len(sad_predicted_classes)) / (len(happy_predicted_classes) + len(sad_predicted_classes))
+
+        accuracy_trail = (happy_target_chances * len(happy_res_per_trail) + (1 - sad_predicted_chances) * len(sad_res_per_trail)) / (len(happy_res_per_trail) + len(sad_res_per_trail))
+        print("accuracy per componenta:" + str(accuracy_componenta))
+        print("accuracy per trial:" + str(accuracy_trail))
+
+        Y = np.concatenate(
+            [np.ones(len(happy_predicted_classes)), np.zeros(len(sad_predicted_classes))])
+        cm = confusion_matrix(Y, np.concatenate((happy_predicted_classes, sad_predicted_classes)), labels=self.clf.classes_)
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=self.clf.classes_)
+        disp.plot()
+        plt.show()
+
+        Y = np.concatenate(
+            [np.ones(len(happy_res_per_trail)), np.zeros(len(sad_res_per_trail))])
+        cm = confusion_matrix(Y, np.concatenate((happy_res_per_trail, sad_res_per_trail)), labels=self.clf.classes_)
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=self.clf.classes_)
+        disp.plot()
+        plt.show()
         if happy_target_chances > sad_predicted_chances:
             result = 'Yes'
             # return 'Yes'
@@ -214,3 +238,4 @@ class Adva_boost:
         # disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=self.clf.classes_)
         # disp.plot()
         # plt.show()
+        """

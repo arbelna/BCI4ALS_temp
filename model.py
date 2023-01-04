@@ -8,7 +8,6 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 from psychopy import visual
 import warnings
-
 warnings.filterwarnings('ignore')
 
 
@@ -64,13 +63,18 @@ class model:
         self.clf.fit(X_train, y_train)
         print("Accuracy score on train set:" + str(accuracy_score(y_train, self.clf.predict(X_train))))
         print("Accuracy score on test set:" + str(accuracy_score(y_test, self.clf.predict(X_test))))
+        cm = confusion_matrix(y_train, self.clf.predict(X_train), labels=self.clf.classes_)
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=self.clf.classes_)
+        disp.plot()
+        plt.show()
         cm = confusion_matrix(y_test, self.clf.predict(X_test), labels=self.clf.classes_)
         disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=self.clf.classes_)
         disp.plot()
         plt.show()
 
     def test_model(self, happy, sad):
-        self.X_Test_happy, self.X_Test_sad = happy, sad
+        self.X_Test_happy, self.X_Test_sad = np.concatenate(happy[[0, 2, 3, 5, 9]]), \
+                                             np.concatenate(sad[[0, 2, 3, 5, 9]])
         # predict for each channel in each trail
         happy_predicted_classes = self.clf.predict(self.X_Test_happy)
         happy_res = 0

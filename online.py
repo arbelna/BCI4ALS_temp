@@ -4,6 +4,7 @@ from Preprocessing_01 import Preprocessing
 from eeg import Eeg
 import numpy as np
 import pickle
+import time
 
 eeg = Eeg()
 exp = ex(eeg)
@@ -13,6 +14,7 @@ print("Turning EEG connection ON")
 eeg.stream_on()
 eeg.clear_board()
 exp.run_experiment(eeg)
+start = time.time()
 data = eeg.get_stream_data()
 # eeg_raw_data = eeg.get_channels_data(True)
 print("Turning EEG connection OFF")
@@ -41,5 +43,7 @@ preprocessing.downsampling(True)
 happy, sad, dist = preprocessing.tar_arr, preprocessing.non_tar_arr, preprocessing.dist_arr
 model = pickle.load(open('model123.p', 'rb'))
 model.test_model(happy, sad)
+end = time.time() - start
+print("running time:" + str(end))
 
 
