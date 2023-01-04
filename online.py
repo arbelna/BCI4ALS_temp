@@ -1,6 +1,6 @@
 from experiment import Experiment as ex
 from preprocessing_online import PreOnline
-from Prepocessing import Preprocessing
+from Preprocessing_01 import Preprocessing
 from eeg import Eeg
 import numpy as np
 import pickle
@@ -33,10 +33,12 @@ eeg_filter_data = preprocessing.filter_data(eeg_raw_data.copy(), 1, 40, fs, 50)
 eeg_filter_data = eeg_filter_data.copy()/1e06
 eeg_data, __ = preprocessing.ica(eeg_filter_data, fs)
 target = np.array(['sad'])
-preprocessing_online = PreOnline(target, labels)
-
-preprocessing_online.segment(eeg_data, labels, target, durations, fs)
-happy, sad, dist = preprocessing_online.downsampling()
+# preprocessing_online = PreOnline(target, labels)
+preprocessing.segmentation(eeg_data, labels, target, durations)
+preprocessing.downsampling(True)
+# preprocessing_online.segment(eeg_data, labels, target, durations, fs)
+# happy, sad, dist = preprocessing_online.downsampling()
+happy, sad, dist = preprocessing.tar_arr, preprocessing.non_tar_arr, preprocessing.dist_arr
 model = pickle.load(open('model123.p', 'rb'))
 model.test_model(happy, sad)
 
