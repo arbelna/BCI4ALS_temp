@@ -11,7 +11,8 @@ class Preprocessing:
     def __init__(self, df):
         self.enum_image = {0: 'furious', 1: 'sad', 2: 'happy'}
         self.df = df
-        self.dict = None
+        self.dict = {}
+        # self.dict = None
         self.tar_arr = None
         self.non_tar_arr = None
         self.dist_arr = None
@@ -107,7 +108,6 @@ class Preprocessing:
         target_idx = dict_idx['target_indexes']
         non_target_idx = dict_idx['non_target_indexes']
         dist_idx = dict_idx['distractor_indexes']
-        self.dict = {}
         for blok in range(durations.shape[0]):
             self.dict[f'Block_{tar[blok]}'] = {}
             segmented_target = np.empty(eeg_data.shape[0], dtype='object')
@@ -214,13 +214,13 @@ class Preprocessing:
         return data, times
 
 
-    def downsampling(self):
-        blocks_num = list(self.blocks_dict.keys())
-        types_list = list(self.blocks_dict[blocks_num[0]].keys())
+    def downsampling(self, online):
+        blocks_num = list(self.dict.keys())
+        types_list = list(self.dict[blocks_num[0]].keys())
         # Select the sample rate and number of samples
         original_sample_rate = 125  # Hz
         new_sample_rate = 82  # Hz
-        num_samples = self.blocks_dict[blocks_num[0]][types_list[0]][0].shape[-1]  # 125
+        num_samples = self.dict[blocks_num[0]][types_list[0]][0].shape[-1]  # 125
 
         # Compute the original duration of the time series
         original_duration = num_samples / original_sample_rate  # seconds
@@ -232,16 +232,21 @@ class Preprocessing:
         for idx in blocks_num:  # Go over all the blocks
             downsample_dict[idx] = {}
             for jj in types_list:  # going over channels
-                downsampled = np.empty(self.blocks_dict[idx][jj].shape[0], dtype='object')
-                for chan in range(self.blocks_dict[idx][jj].shape[0]):
+                downsampled = np.empty(self.dict[idx][jj].shape[0], dtype='object')
+                for chan in range(self.dict[idx][jj].shape[0]):
                     downsample = []
-                    for i in range(self.blocks_dict[idx][jj][chan].shape[0]):  ## going over trials
-                        time_series = self.blocks_dict[idx][jj][chan][i, :]  # Extract the time series
+                    for i in range(self.dict[idx][jj][chan].shape[0]):  ## going over trials
+                        time_series = self.dict[idx][jj][chan][i, :]  # Extract the time series
                         downsampled_time_series = signal.resample(time_series,new_num_samples)  # Downsample the time series
                         downsample.append(downsampled_time_series)
                     downsample = np.array(downsample, dtype='object')
                     downsampled[chan] = downsample
                 downsample_dict[idx][jj] = downsampled
-            self.tar_arr = np.concatenate((downsample_dict['Block_happy']['target'], downsample_dict['Block_sad']['target']))
-            self.non_tar_arr = np.concatenate((downsample_dict['Block_happy']['non target'], downsample_dict['Block_sad']['non target']))
-            self.dist_arr = np.concatenate((downsample_dict['Block_happy']['distractor'], downsample_dict['Block_sad']['distractor']))
+            if online:
+                self.tar_arr = downsample_dict['Block_sad']['target']
+                self.non_tar_arr = downsample_dict['Block_sad']['non target']
+                self.dist_arr = downsample_dict['Block_sad']['distractor']
+            else:
+                self.tar_arr = np.concatenate((downsample_dict['Block_happy']['target'], downsample_dict['Block_sad']['target']))
+                self.non_tar_arr = np.concatenate((downsample_dict['Block_happy']['non target'], downsample_dict['Block_sad']['non target']))
+                self.dist_arr = np.concatenate((downsample_dict['Block_happy']['distractor'], downsample_dict['Block_sad']['distractor']))
