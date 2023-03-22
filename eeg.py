@@ -11,8 +11,8 @@ import numpy as np
 version 00
 """
 # This Message instructs the cyton dongle to configure electrodes gain as X6, and turn off last 3 electrodes
-# HARDWARE_SETTINGS_MSG = "x1030110Xx2030110Xx3030110Xx4030110Xx5030110Xx6030110Xx7030110Xx8030110XxQ030110XxW030110XxE030110XxR030110XxT030110XxY131000XxU131000XxI131000X"
 # NUM_CHANNELS_REMOVE = 3
+HARDWARE_SETTINGS_MSG = "x1030110Xx2030110Xx3030110Xx4030110Xx5030110Xx6030110Xx7030110Xx8030110XxQ030110XxW030110XxE030110XxR030110XxT030110XxY131000XxU131000XxI131000X"
 # STIM_CHAN_NAME = "Stim Markers"
 
 
@@ -104,8 +104,9 @@ class Eeg:
 
     def stream_on(self):
         # Start board stream session
-        # brainflow_board.config_board(HARDWARE_SETTINGS_MSG)
+        # print(json.dumps(self.board.get_board_descr(self.board_id), indent=4))  # Get pretty board description
         self.board.prepare_session()
+        self.board.config_board(HARDWARE_SETTINGS_MSG)
         self.board.start_stream()
 
     def stream_off(self):
@@ -114,6 +115,7 @@ class Eeg:
         self.board.log_message(brainflow.board_shim.LogLevels.LEVEL_INFO, "SAFE EXIT")
         self.board.stop_stream()
         self.board.release_session()
+        # print(json.dumps(self.board.get_board_descr(self.board_id), indent=4))  # Get pretty board description
 
     def numpy_to_df(self, board_data: NDArray):
         """
