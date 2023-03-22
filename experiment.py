@@ -1,7 +1,8 @@
 # importing relevant libraries
 from tkinter import Tk, Entry, Label, Button
 from random import randrange
-from psychopy import visual, core, logging
+from psychopy import visual, core, logging, sound
+import psychtoolbox as ptb
 import random
 import pandas as pd
 from eeg import Eeg
@@ -169,9 +170,12 @@ class Experiment:
         for i in range(self.num_blocks):
             mywin = visual.Window([800, 800], monitor="testMonitor", units="deg")
             look = (i % 2) + 1
-            start_block_win = visual.TextStim(mywin, f'Block number {i + 1} \n\n\n {self.enum_image[look]}', color=(1, 1, 1),
+            start_block_win = visual.TextStim(mywin, f'Block number {i + 1} \n\n\n Please count the number of times you see {self.enum_image[look]} face \n and hear following sound', color=(1, 1, 1),
                                   colorSpace='rgb')
-            start_block_win.draw()
+            # mySound = sound.Sound(f'Pictures/{self.enum_image[look]}.mp3')
+            # nextFlip = mywin.getFutureFlipTime(clock='ptb')
+            # start_block_win.draw()
+            # mySound.play(when=nextFlip)
             mywin.logOnFlip(level=logging.CRITICAL, msg=f'+{i + 1}')
             mywin.flip(clearBuffer=True)
             core.wait(3.0)
@@ -181,16 +185,19 @@ class Experiment:
                 wait = random.uniform(0.3, 0.6)
                 core.wait(wait)
                 start_block_win = visual.ImageStim(win=mywin, image=f'Pictures/{self.enum_image[self.labels[i][j]]}.png')
+                mySound = sound.Sound(f'Pictures/{self.enum_image[self.labels[i][j]]}.mp3')
+                nextFlip = mywin.getFutureFlipTime(clock='ptb')
                 start_block_win.draw()
+                mySound.play(when=nextFlip)
                 # status: str, label: int, index: int
                 mywin.logOnFlip(level=logging.CRITICAL, msg=f'{self.labels[i][j]} {time.time()} {look}')
                 mywin.flip(clearBuffer=True)
-                eeg.insert_marker(status='start', label=self.labels[i][j], index=j)
-                core.wait(0.2)
+                #eeg.insert_marker(status='start', label=self.labels[i][j], index=j)
+                core.wait(0.3)
                 start_block_win = visual.ImageStim(win=mywin)
                 start_block_win.draw()
                 mywin.flip()
-                wait = 1 - 0.2 - wait
+                wait = 1 - 0.3 - wait
                 core.wait(wait)
             mywin.close()
 
