@@ -192,7 +192,7 @@ class Experiment:
                 # status: str, label: int, index: int
                 mywin.logOnFlip(level=logging.CRITICAL, msg=f'{self.labels[i][j]} {time.time()} {look}')
                 mywin.flip(clearBuffer=True)
-                #eeg.insert_marker(status='start', label=self.labels[i][j], index=j)
+                #eeg.insert_marker(status='start', label=self.labels[i][j], index=j)jjj
                 core.wait(0.3)
                 start_block_win = visual.ImageStim(win=mywin)
                 start_block_win.draw()
