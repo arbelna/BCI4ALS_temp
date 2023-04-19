@@ -1,7 +1,8 @@
 # importing relevant libraries
 from tkinter import Tk, Entry, Label, Button
 from random import randrange
-from psychopy import visual, core, logging
+from psychopy import visual, core, logging, sound
+import psychtoolbox as ptb
 import random
 import pandas as pd
 from eeg import Eeg
@@ -180,22 +181,25 @@ class Experiment:
             mywin.flip(clearBuffer=True)
             core.wait(10.0)
             mywin.close()
-            mywin = visual.Window([800, 800], monitor="testMonitor", units="deg")
+            mywin = visual.Window([800, 800], monitor="testMonitor", units="deg", fullscr=True)
             for j in range(self.num_trials):
-                wait = random.uniform(0.3, 0.6)
+                wait = random.uniform(0.6, 1)
                 core.wait(wait)
                 start_block_win = visual.ImageStim(win=mywin,
                                                    image=f'Pictures/{self.enum_image[self.labels[i][j]]}.png')
+                mySound = sound.Sound(f'Pictures/{self.enum_image[self.labels[i][j]]}.mp3')
+                nextFlip = mywin.getFutureFlipTime(clock='ptb')
                 start_block_win.draw()
+                mySound.play(when=nextFlip)
                 # status: str, label: int, index: int
                 mywin.logOnFlip(level=logging.CRITICAL, msg=f'{self.labels[i][j]} {time.time()} {look}')
                 mywin.flip(clearBuffer=True)
                 eeg.insert_marker(status='start', label=self.labels[i][j], index=j)
-                core.wait(0.2)
+                core.wait(0.7)
                 start_block_win = visual.ImageStim(win=mywin)
                 start_block_win.draw()
                 mywin.flip()
-                wait = 1 - 0.2 - wait
+                wait = 2 - 0.7 - wait
                 core.wait(wait)
             mywin.close()
 

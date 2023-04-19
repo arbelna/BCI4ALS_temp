@@ -1,30 +1,30 @@
-# import experiment as ex
-# from eeg import Eeg
-# import numpy as np
+import experiment as ex
+from eeg import Eeg
+import numpy as np
 import pickle
-#
-# eeg = Eeg()
-# exp = ex.Experiment(eeg)
-# eeg.stream_on()
-# eeg.clear_board()
-# exp.run_experiment(eeg)
-# data = eeg.get_stream_data()
-# eeg.stream_off()
-# with open('ido_raw_data10.npy', 'wb') as f:
-#     np.save(f, data, allow_pickle=True)
-#
-# file = open('ido_record10', 'wb')
-# # dump information to that file
-# pickle.dump(exp, file)
-# # close the file
-# file.close()
-#
-# df = exp.results
-# df.to_csv('ido_experiment_results10.csv', index=False)
-# print(exp)
 
-import Advaboost as Ab
-loc = "downsample_data_tot.npy"
+eeg = Eeg()
+exp = ex.Experiment(eeg)
+eeg.stream_on()
+eeg.clear_board()
+exp.run_experiment(eeg)
+data = eeg.get_stream_data()
+eeg.stream_off()
+with open('adva_exp_new_2.npy', 'wb') as f:
+    np.save(f, data, allow_pickle=True)
+#
+file = open('adva_exp_new_2', 'wb')
+# dump information to that file
+pickle.dump(exp, file)
+# close the file
+file.close()
+
+df = exp.results
+df.to_csv('adva_experiment_results_new_2.csv', index=False)
+print(exp)
+
+# import Advaboost as Ab
+# loc = "downsample_data_tot.npy"
 import itertools
 from tqdm import tqdm
 
@@ -42,11 +42,11 @@ from tqdm import tqdm
 # res_per_comb = res_per_comb.sort(key=lambda x: x[2])
 
 #
-temp = Ab.Adva_boost(loc)
-temp.train_model()
-file = open('model.p', 'wb')
-# dump information to that file
-pickle.dump(temp, file)
+# temp = Ab.Adva_boost(loc)
+# temp.train_model()
+# file = open('model.p', 'wb')
+# # dump information to that file
+# pickle.dump(temp, file)
 
 # import model as md
 # temp = md.model(loc)
