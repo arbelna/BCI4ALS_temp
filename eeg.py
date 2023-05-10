@@ -12,8 +12,10 @@ version 00
 """
 # This Message instructs the cyton dongle to configure electrodes gain as X6, and turn off last 3 electrodes
 # NUM_CHANNELS_REMOVE = 3
-HARDWARE_SETTINGS_MSG = "x1030110Xx2030110Xx3030110Xx4030110Xx5030110Xx6030110Xx7030110Xx8030110XxQ030110XxW030110XxE030110XxR030110XxT030110XxY131000XxU131000XxI131000X"
+HARDWARE_SETTINGS_MSG = "x1030110Xx2030110Xx3030110Xx4030110Xx5030110Xx6130110Xx7030110Xx8030110XxQ030110XxW130110XxE030110XxR130110XxT130110XxY131000XxU131000XxI131000X"
 # STIM_CHAN_NAME = "Stim Markers"
+
+HARDWARE_SETTINGS_MSG_old = "x1030110Xx2030110Xx3030110Xx4030110Xx5030110Xx6030110Xx7030110Xx8030110XxQ030110XxW030110XxE030110XxR030110XxT030110XxY131000XxU131000XxI131000X"
 
 
 class Eeg:
@@ -76,15 +78,17 @@ class Eeg:
 
     def get_board_names(self) -> List[str]:
         """The method returns the board's channels"""
-        if self.headset == 'yoav':
-            return ["C3", "C4", "Cz", "FC1", "FC2", "FC5", "FC6", "CP1", "CP2", "CP5", "CP6", "O1", "O2"]
-        else:
-            return self.board.get_eeg_names(self.board_id)
+     #   if self.headset == 'yoav':
+          #  return ["C3", "C4", "Cz", "FC1", "FC2", "FC5", "FC6", "CP1", "CP2", "CP5", "CP6", "O1", "O2"]
+        return ["Pz","Fz","Cz","CP1","FC1","AF3","CP2","FC2","AF4"]
+      #  else:
+       #     return self.board.get_eeg_names(self.board_id)
 
     def get_board_channels(self, remove_channels) -> List[int]:
         """Get list with the channels locations as list of int"""
         if remove_channels:
-            return self.board.get_eeg_channels(self.board_id)[:-3]
+        #    return self.board.get_eeg_channels(self.board_id)[:-3]
+            return [1, 2, 3, 4, 5, 7, 8, 9, 11]
         else:
             return self.board.get_eeg_channels(self.board_id)
 
